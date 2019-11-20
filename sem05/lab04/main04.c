@@ -3,27 +3,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include "display.h"
+#include "message.h"
 
 #define CHILDREN_COUNT 3
-#define BUFFER_SIZE 32
 
 int pipefd[2];
 
 void on_child(int i) {
 	display_row_formatted("on child%02d", i);
-
-	// get message
-	close(pipefd[1]);
-	char buffer[BUFFER_SIZE];
-	read(pipefd[0], buffer, sizeof buffer);
-	display_row_formatted("on child%02d [receives \"%s\"]", i, buffer);
-}
-
-void send_message_to_child(int i) {
-	close(pipefd[0]);
-	char message[] = "message to childxx";
-	snprintf(message, sizeof message, "message to child%02d", i);
-	write(pipefd[1], message, sizeof message);
+	receive_message_on_child(i, pipefd);
 }
 
 int main(void) {
@@ -47,7 +35,7 @@ int main(void) {
 	}
 
 	for (int i = 0; i < CHILDREN_COUNT; ++i) {
-		send_message_to_child(i);
+		send_message_to_child(i, pipefd);
 
 		int status;
 		const pid_t childpid = wait(&status);

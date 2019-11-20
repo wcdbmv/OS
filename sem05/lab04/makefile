@@ -6,7 +6,7 @@ CFLAGS = -Wall -Werror -Wextra -pedantic
 RM = rm
 LOG_ERR = /dev/null
 
-$(APP_NAME)%: main%.o display.o
+$(APP_NAME)%: main%.o display.o message.o
 	$(CC) -o $@ $^
 
 %.o: %.c %.h
