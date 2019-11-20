@@ -1,11 +1,19 @@
-app%: main%.o display.o
-	gcc -o $@ $^
+APP_NAME = app
+
+CC = gcc
+CFLAGS = -Wall -Werror -Wextra -pedantic
+
+RM = rm
+LOG_ERR = /dev/null
+
+$(APP_NAME)%: main%.o display.o
+	$(CC) -o $@ $^
 
 %.o: %.c %.h
-	gcc -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 %.o: %.c
-	gcc -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm app* *.o 2>/dev/null
+	$(RM) -f $(APP_NAME)* *.o 2>$(LOG_ERR)
