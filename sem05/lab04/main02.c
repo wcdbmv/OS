@@ -4,10 +4,9 @@
 #include <unistd.h>
 #include "display.h"
 
-#define CHILDREN_COUNT 20
+#define CHILDREN_COUNT 2
 
 void on_child(int i) {
-	sleep(1);
 	display_row_formatted("on child%02d", i);
 }
 
