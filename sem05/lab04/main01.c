@@ -10,6 +10,16 @@ void display_row(const char *description) {
 	printf("%5d %5d %5d %s\n", getppid(), getpid(), getpgrp(), description);
 }
 
+void on_parent(void) {
+	display_row("parent");
+}
+
+void on_child(void) {
+	display_row("child before sleep");
+	sleep(1);
+	display_row("child after sleep");
+}
+
 int main(void) {
 	display_header();
 
@@ -19,11 +29,5 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	if (childpid) {
-		display_row("parent");
-	} else {
-		display_row("child before sleep");
-		sleep(1);
-		display_row("child after sleep");
-	}
+	childpid ? on_parent() : on_child();
 }
