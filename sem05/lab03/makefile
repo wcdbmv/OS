@@ -1,5 +1,15 @@
-main: main.c
-	gcc -o $@ $^
+APP_NAME = app
+
+CC = gcc
+CFLAGS = -Wall -Werror -Wextra -pedantic
+
+RM = rm
+LOG_ERR = /dev/null
+
+.PHONY: clean
+
+$(APP_NAME): main.c
+	$(CC) -o $@ $(CFLAGS) $^
 
 clean:
-	rm main 2>/dev/null
+	$(RM) -f $(APP_NAME) 2>$(LOG_ERR)
