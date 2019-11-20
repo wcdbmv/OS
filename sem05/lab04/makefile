@@ -1,5 +1,11 @@
-main%: main%.c
-	gcc $^ -o $@
+app%: main%.o display.o
+	gcc -o $@ $^
+
+%.o: %.c %.h
+	gcc -c -o $@ $<
+
+%.o: %.c
+	gcc -c -o $@ $<
 
 clean:
-	rm main01 main02 main03 main04 main05 2>/dev/null
+	rm app* *.o 2>/dev/null

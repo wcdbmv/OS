@@ -1,14 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-void display_header(void) {
-	printf("\n PPID   PID  PGID description\n");
-}
-
-void display_row(const char *description) {
-	printf("%5d %5d %5d %s\n", getppid(), getpid(), getpgrp(), description);
-}
+#include "display.h"
 
 void on_parent(void) {
 	display_row("parent");
@@ -21,6 +14,7 @@ void on_child(void) {
 }
 
 int main(void) {
+	puts("");
 	display_header();
 
 	const pid_t childpid = fork();
