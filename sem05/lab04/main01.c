@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "common.h"
+#include "children.h"
 #include "display.h"
 
 #define SLEEP_TIME 1

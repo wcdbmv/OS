@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <unistd.h>
-#include "common.h"
+#include "children.h"
 #include "display.h"
 
 void on_child(int i) {
