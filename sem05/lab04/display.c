@@ -23,4 +23,3 @@ void display_row_formatted(const char *format, ...) {
 
 	display_row(description);
 }
-
