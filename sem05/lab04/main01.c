@@ -1,27 +1,21 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include "common.h"
 #include "display.h"
 
-void on_parent(void) {
-	display_row("parent");
-}
+#define SLEEP_TIME 1
 
-void on_child(void) {
-	display_row("child before sleep");
-	sleep(1);
-	display_row("child after sleep");
+void on_child(int i) {
+	display_on_child(i, "before sleep");
+	sleep(SLEEP_TIME);
+	display_on_child(i, "after sleep");
 }
 
 int main(void) {
-	puts("");
+	// for pretty out run app01 in background (./app01 &)
+	putchar('\n');
 	display_header();
+	display_on_parent("");
 
-	const pid_t childpid = fork();
-	if (childpid == -1) {
-		perror("fork");
-		return EXIT_FAILURE;
-	}
-
-	childpid ? on_parent() : on_child();
+	fork_children(on_child, DEFAULT_CHILDREN_COUNT);
 }

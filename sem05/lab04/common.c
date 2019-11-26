@@ -38,9 +38,9 @@ void wait_children(void (*prewait)(int i), int children_count) {
 		}
 
 		if (WIFEXITED(status)) {
-			display_row_formatted("on parent [child%02d returns %d]", i, WEXITSTATUS(status));
+			display_on_parent("child%02d returns %d", i, WEXITSTATUS(status));
 		} else {
-			display_row_formatted("on parent [child%02d terminated abnormally]", i);
+			display_on_parent("child%02d terminated abnormally", i);
 		}
 	}
 }

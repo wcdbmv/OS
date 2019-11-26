@@ -8,7 +8,7 @@
 int pipefd[2];
 
 void on_child(int i) {
-	display_row_formatted("on child%02d", i);
+	display_on_child(i, "");
 	receive_message_on_child(i, pipefd);
 }
 
@@ -23,7 +23,7 @@ int main(void) {
 	}
 
 	display_header();
-	display_row("on parent");
+	display_on_parent("");
 
 	fork_children(on_child, DEFAULT_CHILDREN_COUNT);
 	wait_children(prewait, DEFAULT_CHILDREN_COUNT);

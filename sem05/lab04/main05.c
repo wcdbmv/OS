@@ -17,7 +17,7 @@ void sighandler(__attribute__((unused)) int signum) {
 }
 
 void on_child(int i) {
-	display_row_formatted("on child%02d", i);
+	display_on_child(i, "");
 	sleep(SLEEP_TIME);
 
 	if (access_flag) {
@@ -41,7 +41,7 @@ int main(void) {
 	}
 
 	display_header();
-	display_row("on parent");
+	display_on_parent("");
 
 	fork_children(on_child, DEFAULT_CHILDREN_COUNT);
 	wait_children(prewait, DEFAULT_CHILDREN_COUNT);
