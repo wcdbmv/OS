@@ -11,5 +11,5 @@ int main(void) {
 	display_on_parent("");
 
 	fork_children(on_child, DEFAULT_CHILDREN_COUNT);
-	wait_children(NULL, DEFAULT_CHILDREN_COUNT);
+	wait_children(DEFAULT_CHILDREN_COUNT);
 }

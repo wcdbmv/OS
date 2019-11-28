@@ -23,13 +23,10 @@ void fork_children(void (*on_child)(int i), int children_count) {
 }
 
 /*
- * Дожидается завершения `children_count` потомков. Перед завершением i-го
- * потомка исполняет функцию `prewait` (если передана).
+ * Дожидается завершения `children_count` потомков.
  */
-void wait_children(void (*prewait)(int i), int children_count) {
+void wait_children(int children_count) {
 	for (int i = 0; i < children_count; ++i) {
-		if (prewait) prewait(i);
-
 		int status;
 		const pid_t childpid = wait(&status);
 		if (childpid == -1) {
@@ -38,9 +35,14 @@ void wait_children(void (*prewait)(int i), int children_count) {
 		}
 
 		if (WIFEXITED(status)) {
-			display_on_parent("child%02d returns %d", i, WEXITSTATUS(status));
-		} else {
-			display_on_parent("child%02d terminated abnormally", i);
+			display_on_parent("child %d returns %d",
+			childpid, WEXITSTATUS(status));
+		} else if (WIFSIGNALED(status)) {
+			display_on_parent("child %d terminated with signal %d",
+			childpid, WTERMSIG(status));
+		} else if (WIFSTOPPED(status)) {
+			display_on_parent("child%02d stopped due signal %d",
+			childpid, WSTOPSIG(status));
 		}
 	}
 }

@@ -9,11 +9,7 @@ int pipefd[2];
 
 void on_child(int i) {
 	display_on_child(i, "");
-	receive_message_on_child(i, pipefd);
-}
-
-void prewait(int i) {
-	send_message_to_child(i, pipefd);
+	send_message_to_parent(i, pipefd);
 }
 
 int main(void) {
@@ -26,5 +22,7 @@ int main(void) {
 	display_on_parent("");
 
 	fork_children(on_child, DEFAULT_CHILDREN_COUNT);
-	wait_children(prewait, DEFAULT_CHILDREN_COUNT);
+	wait_children(DEFAULT_CHILDREN_COUNT);
+
+	receive_message_on_parent(pipefd);
 }
