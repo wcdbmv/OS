@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/sem.h>
@@ -6,7 +5,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include "children.h"
+#include "common.h"
 
 #define SB 0  /* run access */
 #define SE 1  /* buf empty  */
@@ -30,22 +29,6 @@ struct sembuf consumer_start[2] = {{SB, P, 0}, {SF, P, 0}};
 struct sembuf consumer_stop [2] = {{SE, V, 0}, {SF, V, 0}};
 
 int sem_id = -1;
-
-int randint(int a, int b) {
-	assert(a <= b);
-	return rand() % (b - a + 1) + 1;
-}
-
-void pexit(const char *msg) {
-	perror(msg);
-	exit(EXIT_FAILURE);
-}
-
-void ssemop(int semid, struct sembuf *sops, size_t nsops) {
-	if (semop(semid, sops, nsops) == -1) {
-		pexit("semop");
-	}
-}
 
 void producer(int id) {
 	for (;;) {

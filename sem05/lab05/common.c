@@ -1,9 +1,26 @@
-#include "children.h"
+#include "common.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+int randint(int a, int b) {
+	assert(a <= b);
+	return rand() % (b - a + 1) + 1;
+}
+
+void pexit(const char *msg) {
+	perror(msg);
+	exit(EXIT_FAILURE);
+}
+
+void ssemop(int semid, struct sembuf *sops, size_t nsops) {
+	if (semop(semid, sops, nsops) == -1) {
+		pexit("semop");
+	}
+}
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
@@ -13,8 +30,7 @@ int fork_children(int children_count, void (*on_child)(int id)) {
 	for (int i = 0; i < children_count; ++i) {
 		switch (fork()) {
 		case -1:
-			perror("fork");
-			exit(EXIT_FAILURE);
+			pexit("fork");
 		case 0:
 			if (on_child) on_child(i);
 			exit(EXIT_SUCCESS);

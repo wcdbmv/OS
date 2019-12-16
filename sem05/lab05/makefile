@@ -4,7 +4,7 @@ CFLAGS = -Wall -Werror -Wextra -pedantic
 RM = rm
 LOG_ERR = /dev/null
 
-OBJS = children.o
+OBJS = common.o
 
 .PHONY: all
 
