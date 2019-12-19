@@ -23,25 +23,30 @@
 int sem_id = -1;
 int shm_id = -1;
 
-int *shm = NULL;
-int *shm_prod = NULL;
-int *shm_cons = NULL;
-int value = 0;
+char *shm       = NULL;
+int  *shm_buff  = NULL;
+int **shm_prod  = NULL;
+int **shm_cons  = NULL;
+int  *shm_value = NULL;
 
-struct sembuf producer_start[2] = {{SE, P, 0}, {SB, P, 0}};
-struct sembuf producer_stop [2] = {{SB, V, 0}, {SF, V, 0}};
-struct sembuf consumer_start[2] = {{SF, P, 0}, {SB, P, 0}};
-struct sembuf consumer_stop [2] = {{SB, V, 0}, {SE, V, 0}};
+struct sembuf producer_start[2] = {{SB, P, 0}, {SE, P, 0}};
+struct sembuf producer_stop [2] = {{SF, V, 0}, {SB, V, 0}};
+struct sembuf consumer_start[2] = {{SB, P, 0}, {SF, P, 0}};
+struct sembuf consumer_stop [2] = {{SE, V, 0}, {SB, V, 0}};
 
 void producer(int id) {
 	for (;;) {
 		sleep(randint(1, 3));
 		safe_semop(sem_id, producer_start, 2);
+		if (*shm_prod == shm_buff + N) {
+			safe_semop(sem_id, producer_stop, 2);
+			break;
+		}
 
-		*shm_prod = value;
-		printf("[producer][#%d][pid %d] produces '%d'\n", id, getpid(), *shm_prod);
-		++shm_prod;
-		++value;
+		**shm_prod = *shm_value;
+		printf("[on producer][#%d][pid %d] produces '%d'\n", id, getpid(), **shm_prod);
+		++*shm_prod;
+		++*shm_value;
 
 		safe_semop(sem_id, producer_stop, 2);
 	}
@@ -51,9 +56,13 @@ void consumer(int id) {
 	for (;;) {
 		sleep(randint(1, 5));
 		safe_semop(sem_id, consumer_start, 2);
+		if (*shm_cons == shm_buff + N) {
+			safe_semop(sem_id, consumer_stop, 2);
+			break;
+		}
 
-		printf("[consumer][#%d][pid %d] consumes '%d'\n", id, getpid(), *shm_cons);
-		++shm_cons;
+		printf("[on consumer][#%d][pid %d] consumes '%d'\n", id, getpid(), **shm_cons);
+		++*shm_cons;
 
 		safe_semop(sem_id, consumer_stop, 2);
 	}
@@ -67,13 +76,17 @@ void init_sem(void) {
 }
 
 void init_shm(void) {
-	shm_id = safe_shmget(IPC_PRIVATE, (N + 1) * sizeof (int), IPC_CREAT | PERMS);
+	shm_id = safe_shmget(IPC_PRIVATE, 2 * sizeof (int *) + (N + 1) * sizeof (int), IPC_CREAT | PERMS);
 	shm = safe_shmat(shm_id, 0, 0);
 
-	shm_prod = shm;
-	shm_cons = shm;
+	shm_prod = (int **) shm;
+	shm_cons = (int **) (shm + sizeof (int *));
+	shm_value = (int *) (shm + 2 * sizeof (int *));
+	shm_buff = (int *) (shm + 2 * sizeof (int *) + sizeof (int));
 
-	*shm = -1;
+	*shm_prod = shm_buff;
+	*shm_cons = shm_buff;
+	*shm_value = 0;
 }
 
 void clear(void) {
@@ -82,7 +95,7 @@ void clear(void) {
 }
 
 void handler(int signum) {
-	printf("[on  parent] on handler [sig %d]\n", signum);
+	printf("\n[on parent] on handler [sig %d]\n", signum);
 }
 
 int main(void) {
