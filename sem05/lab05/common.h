@@ -4,6 +4,10 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#endif  // ARRAY_SIZE
+
 int randint(int a, int b);
 
 void pexit(const char *msg);

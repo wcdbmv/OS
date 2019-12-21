@@ -48,7 +48,7 @@ void *safe_shmat(int shmid, const void *shmaddr, int shmflg) {
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
 int fork_children(int children_count, void (*on_child)(int id)) {
-	int forks = 0;
+	int success_forks_count = 0;
 	for (int i = 0; i < children_count; ++i) {
 		switch (fork()) {
 		case -1:
@@ -57,11 +57,11 @@ int fork_children(int children_count, void (*on_child)(int id)) {
 			if (on_child) on_child(i);
 			exit(EXIT_SUCCESS);
 		default:
-			++forks;
+			++success_forks_count;
 		}
 	}
 
-	return forks;
+	return success_forks_count;
 }
 
 #pragma GCC diagnostic push
