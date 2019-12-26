@@ -7,7 +7,7 @@
 
 #define N 5
 
-#define SLEEP_TIME 50
+#define SLEEP_TIME 200
 
 HANDLE mutex;
 HANDLE can_read;
@@ -21,13 +21,18 @@ bool writing = false;
 
 int value = 0;
 
+volatile LONG waiting_writers_count = 0;
+volatile LONG waiting_readers_count = 0;
+
 
 void start_read(void) {
+	InterlockedIncrement(&waiting_readers_count);
 	if (writing || WaitForSingleObject(can_write, 0) == WAIT_OBJECT_0) {
 		WaitForSingleObject(can_read, INFINITE);
 	}
 
 	WaitForSingleObject(mutex, INFINITE);
+	InterlockedDecrement(&waiting_readers_count);
 	InterlockedIncrement(&active_readers_count);
 	SetEvent(can_read);
 }
@@ -43,10 +48,12 @@ void stop_read(void) {
 }
 
 void start_write(void) {
+	InterlockedIncrement(&waiting_writers_count);
 	if (writing || active_readers_count > 0) {
 		WaitForSingleObject(can_write, INFINITE);
 	}
 
+	InterlockedDecrement(&waiting_writers_count);
 	WaitForSingleObject(mutex, INFINITE);
 	writing = true;
 }
@@ -63,12 +70,15 @@ void stop_write(void) {
 	ReleaseMutex(mutex);
 }
 
-DWORD WINAPI writer(__attribute__((unused)) LPVOID lpParams) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+
+DWORD WINAPI writer(LPVOID lpParams) {
 	for (int i = 0; i < N; ++i) {
 		start_write();
 
 		++value;
-		printf("[on writer][#%5ld] writes value '%d'\n", GetCurrentThreadId(), value);
+		printf("[on writer][#%d] writes value '%d'\n", (int) lpParams, value);
 
 		stop_write();
 		Sleep(SLEEP_TIME);
@@ -77,11 +87,11 @@ DWORD WINAPI writer(__attribute__((unused)) LPVOID lpParams) {
 	return EXIT_SUCCESS;
 }
 
-DWORD WINAPI reader(__attribute__((unused)) LPVOID lpParams) {
+DWORD WINAPI reader(LPVOID lpParams) {
 	while (value < WRITERS_COUNT * N) {
 		start_read();
 
-		printf("[on reader][#%5ld] reads value '%d'\n", GetCurrentThreadId(), value);
+		printf("[on reader][#%d] reads value '%d'\n", (int) lpParams, value);
 
 		stop_read();
 		Sleep(SLEEP_TIME);
@@ -89,6 +99,8 @@ DWORD WINAPI reader(__attribute__((unused)) LPVOID lpParams) {
 
 	return EXIT_SUCCESS;
 }
+
+#pragma GCC diagnostic pop
 
 int init_handles(void) {
 	if ((mutex = CreateMutex(NULL, FALSE, NULL)) == NULL) {
@@ -109,16 +121,13 @@ int init_handles(void) {
 	return EXIT_SUCCESS;
 }
 
-int create_threads(void) {
-	for (int i = 0; i < WRITERS_COUNT; ++i) {
-		if ((writers[i] = CreateThread(NULL, 0, writer, NULL, 0, NULL)) == NULL) {
-			perror("CreateThread");
-			return EXIT_FAILURE;
-		}
-	}
 
-	for (int i = 0; i < READERS_COUNT; ++i) {
-		if ((readers[i] = CreateThread(NULL, 0, reader, NULL, 0, NULL)) == NULL) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+
+int create_threads(HANDLE *threads, int threads_count, DWORD (*on_thread)(LPVOID)) {
+	for (int i = 0; i < threads_count; ++i) {
+		if ((threads[i] = CreateThread(NULL, 0, on_thread, (LPVOID) i, 0, NULL)) == NULL) {
 			perror("CreateThread");
 			return EXIT_FAILURE;
 		}
@@ -127,16 +136,16 @@ int create_threads(void) {
 	return EXIT_SUCCESS;
 }
 
+#pragma GCC diagnostic pop
+
 int main(void) {
 	setbuf(stdout, NULL);
 
 	int rc = EXIT_SUCCESS;
 
-	if ((rc = init_handles()) != EXIT_SUCCESS) {
-		return rc;
-	}
-
-	if ((rc = create_threads()) != EXIT_SUCCESS) {
+	if ((rc = init_handles()) != EXIT_SUCCESS
+	 || (rc = create_threads(writers, WRITERS_COUNT, writer)) != EXIT_SUCCESS
+	 || (rc = create_threads(readers, READERS_COUNT, reader)) != EXIT_SUCCESS) {
 		return rc;
 	}
 

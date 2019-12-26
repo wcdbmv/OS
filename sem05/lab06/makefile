@@ -6,11 +6,8 @@ LOG_ERR = /dev/null
 
 .PHONY: clean
 
-rw: rw.o
-	$(CC) -o $@ $^
-
-%.o: %.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+rw: rw.c
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	$(RM) -f rw rw.o 2>$(LOG_ERR)
+	$(RM) -f rw 2>$(LOG_ERR)
