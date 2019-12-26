@@ -26,15 +26,18 @@ volatile LONG waiting_readers_count = 0;
 
 
 void start_read(void) {
+	WaitForSingleObject(mutex, INFINITE); // far-fetched
+
 	InterlockedIncrement(&waiting_readers_count);
-	if (writing || WaitForSingleObject(can_write, 0) == WAIT_OBJECT_0) {
+	if (writing || waiting_writers_count > 0) {
 		WaitForSingleObject(can_read, INFINITE);
 	}
 
-	WaitForSingleObject(mutex, INFINITE);
 	InterlockedDecrement(&waiting_readers_count);
 	InterlockedIncrement(&active_readers_count);
 	SetEvent(can_read);
+
+	ReleaseMutex(mutex);
 }
 
 void stop_read(void) {
@@ -43,8 +46,6 @@ void stop_read(void) {
 	if (active_readers_count == 0) {
 		SetEvent(can_write);
 	}
-
-	ReleaseMutex(mutex);
 }
 
 void start_write(void) {
@@ -54,20 +55,17 @@ void start_write(void) {
 	}
 
 	InterlockedDecrement(&waiting_writers_count);
-	WaitForSingleObject(mutex, INFINITE);
 	writing = true;
 }
 
 void stop_write(void) {
 	writing = false;
 
-	if (WaitForSingleObject(can_read, 0) == WAIT_OBJECT_0) {
+	if (waiting_readers_count > 0) {
 		SetEvent(can_read);
 	} else {
 		SetEvent(can_write);
 	}
-
-	ReleaseMutex(mutex);
 }
 
 #pragma GCC diagnostic push
