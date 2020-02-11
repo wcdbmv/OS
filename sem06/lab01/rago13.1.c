@@ -3,7 +3,8 @@
 #include <fcntl.h>
 #include <sys/resource.h>
 
-void daemonize(const char *cmd)
+void
+daemonize(const char *cmd)
 {
 	int i, fd0, fd1, fd2;
 	pid_t pid;
@@ -38,7 +39,7 @@ void daemonize(const char *cmd)
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	if (sigaction(SIGHUP, &sa, NULL) < 0)
-		err_quit("%s: невозможно игнорировать сигнал SIGHUP");
+		err_quit("%s: невозможно игнорировать сигнал SIGHUP", cmd);
 	if ((pid = fork()) < 0)
 		err_quit("%s: ошибка вызова функции fork", cmd);
 	else if (pid != 0) /* родительский процесс */
@@ -49,7 +50,8 @@ void daemonize(const char *cmd)
 	 * чтобы впоследствии можно было отмонтировать файловую систему.
 	 */
 	if (chdir("/") < 0)
-		err_quit("%s: невозможно сделать текущим рабочим каталогом /");
+		err_quit("%s: невозможно сделать текущим рабочим каталогом /",
+		         cmd);
 
 	/*
 	 * Закрыть все открытые файловые дескрипторы.
