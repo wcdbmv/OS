@@ -11,6 +11,9 @@ CFLAGS = -Wall -Werror -Wextra -pedantic
 
 .PHONY: clean
 
+main.out: main.o error.o
+	$(CC) -o $@ $^
+
 rago13.1.o: rago13.1.c
 	$(CC) -o $@ -c $< $(IAPUE)
 
@@ -23,5 +26,11 @@ rago13.3.o: rago13.3.c
 rago13.3.out: rago13.3.o rago13.2.o
 	$(CC) -o $@ $^ $(LOCKFILE) -pthread $(IAPUE) $(LAPUE)
 
+%.o: %.c %.h
+	$(CC) -o $@ $(CFLAGS) -c $<
+
+%.o: %.c
+	$(CC) -o $@ $(CFALGS) -c $^
+
 clean:
-	rm -f *.o 2>/dev/null
+	rm -f *.o *.out 2>/dev/null
