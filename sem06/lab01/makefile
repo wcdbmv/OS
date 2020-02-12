@@ -9,10 +9,18 @@ LOCKFILE = $(SCADDRESS)/advio/lockfile.o
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra -pedantic
 
-.PHONY: clean
+APP = main.out
 
-main.out: main.o error.o
+.PHONY: clean run kill
+
+$(APP): main.o
 	$(CC) -o $@ $^
+
+run: $(APP)
+	sudo ./$(APP)
+
+kill:
+	ps -C $(APP) -o pid= | xargs -- sudo kill
 
 rago13.1.o: rago13.1.c
 	$(CC) -o $@ -c $< $(IAPUE)
