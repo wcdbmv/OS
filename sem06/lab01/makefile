@@ -22,6 +22,9 @@ run: $(APP)
 kill:
 	ps -C $(APP) -o pid= | xargs -- sudo kill
 
+log:
+	tail -f /var/log/syslog
+
 rago13.1.o: rago13.1.c
 	$(CC) -o $@ -c $< $(IAPUE)
 
