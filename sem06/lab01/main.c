@@ -8,13 +8,14 @@
 #include <syslog.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 #include "error.h"
 
 #define SLEEP_TIME 5
 
 void syslog_quit(const char *prompt) {
-	syslog(LOG_ERR, "Unable to %s: %s", prompt, strerror(errno));
+	syslog(LOG_ERR, "Unable to %s: %m", prompt);
 	exit(EXIT_FAILURE);
 }
 
@@ -61,22 +62,15 @@ int already_running(void) {
 	return EXIT_SUCCESS;
 }
 
-void deny_allocate_controlling_ttys() {
-	struct sigaction sa;
-	sa.sa_handler = SIG_IGN;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	if (sigaction(SIGHUP, &sa, NULL) == -1) {
-		syslog_quit("ignore SIGHUP");
-	}
-}
-
 void daemonize(const char *cmd) {
-	// Инициализировать файл журнала
-	openlog(cmd, LOG_CONS, LOG_DAEMON);
-
 	// 1. Сбросить маску режима создания файлов
 	umask(0);
+
+	// Получить максимально возможный номер дескриптора файла.
+	struct rlimit rl;
+	if (getrlimit(RLIMIT_NOFILE, &rl) == -1) {
+		syslog_quit("getrlimit");
+	}
 
 	// 2. Вызвать функцию fork и завершить родительский процесс. Этим самым
 	// мы гарантируем, что дочерний процесс не будет являться лидером
@@ -88,13 +82,21 @@ void daemonize(const char *cmd) {
 		exit(EXIT_SUCCESS);
 	}
 
+	// Обеспечить невозможность обретения управляющего терминала в будущем
+	struct sigaction sa;
+	sa.sa_handler = SIG_IGN;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	if (sigaction(SIGHUP, &sa, NULL) == -1) {
+		syslog_quit("ignore SIGHUP");
+	}
+
 	// 3. Создать новую сессию, при этом процесс становится (а) лидером
 	// новой сессии (б) лидером новой группы процессов и (в) лишается
 	// управляющего терминала
-	setsid();
-
-	// Обеспечить невозможность обретения управляющего терминала в будущем
-	deny_allocate_controlling_ttys();
+	if (setsid() == -1) {
+		syslog_quit("setsid");
+	}
 
 	// 4. Сделать корневой каталог текущим рабочим каталогом
 	if (chdir("/") == -1) {
@@ -102,16 +104,22 @@ void daemonize(const char *cmd) {
 	}
 
 	// 5. Закрыть все открытые файловые дескрипторы
-	for (int fd = sysconf(_SC_OPEN_MAX); fd >= 0; --fd) {
-                close(fd);
-        }
+	if (rl.rlim_max == RLIM_INFINITY) {
+		rl.rlim_max = 1024;
+	}
+	for (int fd = 0; fd < rl.rlim_max; ++fd) {
+		close(fd);
+	}
 
-	// Присоединить файловые дескрипторы 0, 1 и 2 к /dev/null
+	// 6. Присоединить файловые дескрипторы 0, 1 и 2 к /dev/null
 	if (open("/dev/null", O_RDWR) != 0) {
 		syslog_quit("open /dev/null");
 	}
 	(void) dup(0);
 	(void) dup(1);
+
+	// Инициализировать файл журнала
+	openlog(cmd, LOG_CONS, LOG_DAEMON);
 }
 
 int main(void) {
@@ -122,10 +130,12 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-	syslog(LOG_WARNING, "STARTS");
+	time_t t = time(NULL);
+	syslog(LOG_WARNING, "STARTS %s", asctime(localtime(&t)));
 
-	for (int runtime = 0;; runtime += SLEEP_TIME) {
-		syslog(LOG_INFO, "RUNNING %d SEC", runtime);
+	for (;;) {
+		t = time(NULL);
+		syslog(LOG_INFO, "current time is %s", asctime(localtime(&t)));
 		sleep(SLEEP_TIME);
 	}
 }
