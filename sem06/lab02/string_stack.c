@@ -24,3 +24,11 @@ const char *top_string(const stack_node_t *stack_node)
 
 	return top_string(stack_node);
 }
+
+void delete_string(char **string)
+{
+	assert(string);
+
+	free(*string);
+	*string = NULL;
+}

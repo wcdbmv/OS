@@ -7,4 +7,6 @@ int push_string(stack_node_t **stack_node, const char *string);
 char *pop_string(stack_node_t **stack_node);
 const char *top_string(const stack_node_t *stack_node);
 
+void delete_string(char **string);
+
 #endif  // STRING_STACK_H_
