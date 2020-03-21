@@ -13,19 +13,11 @@ add_compile_options(
 
 set(
 	SOURCES
-	stack.c
-	string_stack.c
-	tree.c
-	vector.c
 )
 
 set(
 	HEADERS
 	color.h
-	stack.h
-	string_stack.h
-	tree.h
-	vector.h
 )
 
 add_executable(lab02 main.c ${SOURCES} ${HEADERS})

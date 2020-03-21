@@ -5,7 +5,7 @@ APP = main.out
 
 .PHONY: clean
 
-$(APP): main.o tree.o vector.o
+$(APP): main.o
 	$(CC) -o $@ $^
 
 %.o: %.c %.h
