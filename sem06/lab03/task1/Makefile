@@ -1,4 +1,4 @@
-obj-m += my_module.o
+obj-m += md.o
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 
@@ -7,3 +7,10 @@ install: modules_install
 
 modules modules_install help clean:
 	make -C $(KERNELDIR) M=$(shell pwd) $@
+
+# lsmod
+# sudo insmod md.ko
+# lsmod | grep md
+# dmesg | tail -350
+# modinfo md.ko
+# sudo rmmod md
