@@ -26,21 +26,26 @@ void close_proc_file(FILE *file)
 	fclose(file);
 }
 
-void print_proc_environ(FILE *file, int pid)
+void print_proc_file(FILE *file, char delim)
 {
 	char buf[BUF_SIZE];
 	size_t len;
 
-	printf("=== Environment list of the process with id %d:\n", pid);
 	while ((len = fread(buf, 1, BUF_SIZE, file)) > 0) {
 		for (char *c = buf; c < buf + len; ++c) {
 			if (*c == '\0') {
-				*c = '\n';
+				*c = delim;
 			}
 		}
 		buf[len - 1] = '\0';
 		printf("%s", buf);
 	}
+}
+
+void print_proc_environ(FILE *file, int pid)
+{
+	printf("=== Environment list of the process with id %d:\n", pid);
+	print_proc_file(file, '\n');
 }
 
 void print_proc_state(FILE *file)
@@ -68,6 +73,12 @@ void print_proc_state(FILE *file)
 	printf("\t%c\t%s\n", state, state_description);
 }
 
+void print_proc_cmdline(FILE *file, int pid)
+{
+	printf("\n=== Command line for the process with id %d:\n", pid);
+	print_proc_file(file, ' ');
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc > 2) {
@@ -85,5 +96,9 @@ int main(int argc, char *argv[])
 
 	file = open_proc_file(pid, "stat");
 	print_proc_state(file);
+	close_proc_file(file);
+
+	file = open_proc_file(pid, "cmdline");
+	print_proc_cmdline(file, pid);
 	close_proc_file(file);
 }
