@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <dirent.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +8,40 @@
 
 #define BUF_SIZE 4096
 
+FILE *open_proc_file(int pid, const char *filename);
+void close_proc_file(FILE *file);
+void print_proc_file(FILE *file, char delim);
+void print_proc_environ(FILE *file, int pid);
+void print_proc_cmdline(FILE *file, int pid);
+void print_proc_state(FILE *file);
+void print_proc_fd(int pid);
+
+int main(int argc, char *argv[])
+{
+	if (argc > 2) {
+		fprintf(stderr, "Usage: %s [pid=self]\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	const int pid = argc == 1 ? getpid() : atoi(argv[1]);
+
+	FILE *file = NULL;
+
+	file = open_proc_file(pid, "environ");
+	print_proc_environ(file, pid);
+	close_proc_file(file);
+
+	file = open_proc_file(pid, "stat");
+	print_proc_state(file);
+	close_proc_file(file);
+
+	file = open_proc_file(pid, "cmdline");
+	print_proc_cmdline(file, pid);
+	close_proc_file(file);
+
+	print_proc_fd(pid);
+}
+
 FILE *open_proc_file(int pid, const char *filename)
 {
 	char pathname[PATH_MAX];
@@ -14,7 +49,7 @@ FILE *open_proc_file(int pid, const char *filename)
 
 	FILE *file = fopen(pathname, "r");
 	if (file == NULL) {
-		fprintf(stderr, "fopen(%s, \"r\"): %s\n", pathname, strerror(errno));
+		fprintf(stderr, "fopen(\"%s\", \"r\"): %s\n", pathname, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -48,6 +83,12 @@ void print_proc_environ(FILE *file, int pid)
 	print_proc_file(file, '\n');
 }
 
+void print_proc_cmdline(FILE *file, int pid)
+{
+	printf("\n=== Command line for the process with id %d:\n", pid);
+	print_proc_file(file, ' ');
+}
+
 void print_proc_state(FILE *file)
 {
 	int pid;
@@ -59,8 +100,8 @@ void print_proc_state(FILE *file)
 	const char *state_description = NULL;
 	switch (state) {
 	case 'R': state_description = "Running"; break;
-	case 'S': state_description = "Sleeping (interruptible sleep — waiting an event for complete)"; break;
-	case 'D': state_description = "Disk sleep (uninterruptible sleep)"; break;
+	case 'S': state_description = "Sleeping (interruptible — waiting an event for complete)"; break;
+	case 'D': state_description = "Disk sleep (uninterruptible)"; break;
 	case 'T': state_description = "Stopped (stopped by job control signal)"; break;
 	case 't': state_description = "Tracing stop (stopped by debugger during the tracing)"; break;
 	case 'X': state_description = "Dead (should never be seen)"; break;
@@ -73,32 +114,32 @@ void print_proc_state(FILE *file)
 	printf("\t%c\t%s\n", state, state_description);
 }
 
-void print_proc_cmdline(FILE *file, int pid)
+void print_proc_fd(int pid)
 {
-	printf("\n=== Command line for the process with id %d:\n", pid);
-	print_proc_file(file, ' ');
-}
+	char dirname[PATH_MAX];
+	snprintf(dirname, sizeof dirname, "/proc/%d/fd", pid);
 
-int main(int argc, char *argv[])
-{
-	if (argc > 2) {
-		fprintf(stderr, "Usage: %s [pid=self]\n", argv[0]);
-		return EXIT_FAILURE;
+	DIR *dir = opendir(dirname);
+	if (dir == NULL) {
+		fprintf(stderr, "opendir(\"%s\"): %s\n", dirname, strerror(errno));
+		exit(EXIT_FAILURE);
 	}
 
-	const int pid = argc == 1 ? getpid() : atoi(argv[1]);
+	printf("\n\n=== List of open files for the process with id %d:\n", pid);
+	struct dirent *entry = NULL;
+	while ((entry = readdir(dir)) != NULL) {
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+			continue;
+		}
 
-	FILE *file = NULL;
+		char path[PATH_MAX], str[PATH_MAX];
+		snprintf(path, sizeof path, "%s/%s", dirname, entry->d_name);
 
-	file = open_proc_file(pid, "environ");
-	print_proc_environ(file, pid);
-	close_proc_file(file);
+		const int n = readlink(path, str, sizeof str);
+		str[n] = '\0';
 
-	file = open_proc_file(pid, "stat");
-	print_proc_state(file);
-	close_proc_file(file);
+		printf("\t%-17s -> %s\n", path, str);
+	}
 
-	file = open_proc_file(pid, "cmdline");
-	print_proc_cmdline(file, pid);
-	close_proc_file(file);
+	closedir(dir);
 }

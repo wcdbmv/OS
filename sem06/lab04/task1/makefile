@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra -pedantic
+CFLAGS = -Wall -Werror -Wextra -pedantic -Wno-format-truncation
 
 SRC_EXT = c
 EXE_EXT = out
