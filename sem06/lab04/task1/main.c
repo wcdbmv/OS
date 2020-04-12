@@ -42,6 +42,9 @@ int main(int argc, char *argv[])
 	print_proc_fd(pid);
 }
 
+/*
+ * Открытие файла /proc/<pid>/<filename>
+ */
 FILE *open_proc_file(int pid, const char *filename)
 {
 	char pathname[PATH_MAX];
@@ -56,11 +59,17 @@ FILE *open_proc_file(int pid, const char *filename)
 	return file;
 }
 
+/*
+ * Закрытие файла
+ */
 void close_proc_file(FILE *file)
 {
 	fclose(file);
 }
 
+/*
+ * Вывод на экран файла file с заменой символа '\0' на символ delim
+ */
 void print_proc_file(FILE *file, char delim)
 {
 	char buf[BUF_SIZE];
@@ -77,18 +86,27 @@ void print_proc_file(FILE *file, char delim)
 	}
 }
 
+/*
+ * Вывод информации об окружении процесса
+ */
 void print_proc_environ(FILE *file, int pid)
 {
 	printf("=== Environment list of the process with id %d:\n", pid);
 	print_proc_file(file, '\n');
 }
 
+/*
+ * Вывод информации из файла cmdline
+ */
 void print_proc_cmdline(FILE *file, int pid)
 {
 	printf("\n=== Command line for the process with id %d:\n", pid);
 	print_proc_file(file, ' ');
 }
 
+/*
+ * Вывод информации о состоянии процесса
+ */
 void print_proc_state(FILE *file)
 {
 	int pid;
@@ -114,6 +132,9 @@ void print_proc_state(FILE *file)
 	printf("\t%c\t%s\n", state, state_description);
 }
 
+/*
+ * Вывод информации из директории fd
+ */
 void print_proc_fd(int pid)
 {
 	char dirname[PATH_MAX];
@@ -128,7 +149,8 @@ void print_proc_fd(int pid)
 	printf("\n\n=== List of open files for the process with id %d:\n", pid);
 	struct dirent *entry = NULL;
 	while ((entry = readdir(dir)) != NULL) {
-		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+		if (strcmp(entry->d_name, ".") == 0
+		 || strcmp(entry->d_name, "..") == 0) {
 			continue;
 		}
 
