@@ -13,7 +13,7 @@ void close_proc_file(FILE *file);
 void print_proc_file(FILE *file, char delim);
 void print_proc_environ(FILE *file, int pid);
 void print_proc_cmdline(FILE *file, int pid);
-void print_proc_state(FILE *file);
+void print_proc_stat(FILE *file);
 void print_proc_fd(int pid);
 
 int main(int argc, char *argv[])
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	close_proc_file(file);
 
 	file = open_proc_file(pid, "stat");
-	print_proc_state(file);
+	print_proc_stat(file);
 	close_proc_file(file);
 
 	file = open_proc_file(pid, "cmdline");
@@ -107,29 +107,32 @@ void print_proc_cmdline(FILE *file, int pid)
 /*
  * Вывод информации о состоянии процесса
  */
-void print_proc_state(FILE *file)
+void print_proc_stat(FILE *file)
 {
-	int pid;
-	char comm[NAME_MAX];
-	char state;
+	static char *fields[] = {
+		"pid", "comm", "state", "ppid", "pgrp", "session", "tty_nr", "tpgid",
+		"flags", "minflt", "cminflt", "majflt", "cmajflt", "utime", "stime",
+		"cutime", "cstime", "priority", "nice", "num_threads", "itrealvalue",
+		"starttime", "vsize", "rss", "rsslim", "startcode", "endcode",
+		"startstack", "kstkesp", "kstkeip", "signal", "blocked", "sigignore",
+		"sigcatch", "wchan", "nswap", "cnswap", "exit_signal", "processor",
+		"rt_priority", "policy", "delayacct_blkio_ticks", "guest_time",
+		"cguest_time", "start_data", "end_data", "start_brk", "arg_start",
+		"arg_end", "env_start", "env_end", "exit_code", NULL
+	};
 
-	fscanf(file, "%d %s %c", &pid, comm, &state);
+	char buf[BUF_SIZE];
+	const size_t len = fread(buf, 1, BUF_SIZE, file);
+	buf[len - 1] = '\0';
 
-	const char *state_description = NULL;
-	switch (state) {
-	case 'R': state_description = "Running"; break;
-	case 'S': state_description = "Sleeping (interruptible — waiting an event for complete)"; break;
-	case 'D': state_description = "Disk sleep (uninterruptible)"; break;
-	case 'T': state_description = "Stopped (stopped by job control signal)"; break;
-	case 't': state_description = "Tracing stop (stopped by debugger during the tracing)"; break;
-	case 'X': state_description = "Dead (should never be seen)"; break;
-	case 'Z': state_description = "Zombie (terminated but not reaped by its parent)"; break;
-	case 'I': state_description = "Idle (kernel thread)"; break;
-	default:  state_description = "unknown"; break;
+	printf("\n\n=== State of the process:\n");
+	for (
+		char *pch = strtok(buf, " "), **pfield = fields;
+		pch && *pfield;
+		pch = strtok(NULL, " "), ++pfield
+	) {
+		printf("%-21s %s\n", *pfield, pch);
 	}
-
-	printf("\n\n=== State of the process with id %d:\n", pid);
-	printf("\t%c\t%s\n", state, state_description);
 }
 
 /*
