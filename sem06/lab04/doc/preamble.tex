@@ -3,6 +3,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english,russian]{babel}
 
+\renewcommand{\ttdefault}{PTMono-TLF}
+
 % Текст отчёта следует печатать, соблюдая следующие размеры полей:
 % левое — 30 мм, правое — 15 мм, верхнее и нижнее — 20 мм.
 \usepackage[left=20mm, right=15mm, top=15mm, bottom=15mm]{geometry}
@@ -27,6 +29,7 @@
 
 \usepackage{graphicx}
 \usepackage{caption}
+\usepackage{float}
 
 \usepackage[unicode,pdftex]{hyperref}
 \hypersetup{hidelinks}
@@ -88,4 +91,22 @@
 \newcommand{\code}[1]{\texttt{#1}}
 %% end code
 
-\usepackage{amsmath}
+%% begin theorem
+\usepackage{amsthm}
+
+\makeatletter
+\newtheoremstyle{indented}
+	{}% measure of space to leave above the theorem
+	{}% measure of space to leave below the theorem
+	{}% name of font to use in the body of the theorem
+	{\parindent}% measure of space to indent
+	{\bfseries}% name of head font
+	{.}% punctuation between head and body
+	{ }% space after theorem head; " " = normal interword space
+	{}% header specification (empty for default)
+\makeatother
+
+\theoremstyle{indented}
+
+\newtheorem*{task*}{Задание}
+%% end theorem
