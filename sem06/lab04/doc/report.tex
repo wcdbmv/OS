@@ -1,0 +1,70 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\section*{Часть 1}
+
+\begin{task*}
+	Используя виртуальную файловую систему \code{proc}, вывести информацию об окружении процесса, о состоянии процесса, информацию из файла \code{cmdline} и директории \code{fd}.
+\end{task*}
+
+В листинге \ref{lst:proc} представлена программа \code{proc.c}, выводящая информацию о процессе.
+На рисунках \ref{img:task1-environ}–\ref{img:task1-cmdline-fd} продемонстрирована работа программы.
+
+\lstinputlisting[caption={task1/proc.c}\label{lst:proc}, language=C]{../task1/proc.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.325]{inc/img/task1-environ1}
+	\includegraphics[scale=0.325]{inc/img/task1-environ2}
+	\caption{Информация об окружении процесса}
+	\label{img:task1-environ}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.4425]{inc/img/task1-stat}
+	\caption{Информация о состоянии процесса}
+	\label{img:task1-stat}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.4425]{inc/img/task1-cmdline-fd}
+	\caption{Информация из файла \code{cmdline} и директории \code{fd}}
+	\label{img:task1-cmdline-fd}
+\end{figure}
+
+\section*{Часть 2}
+
+\begin{task*}
+	Написать загружаемый модуль ядра, создать файл в файловой системе \code{proc}, поддиректорию и символическую ссылку.
+	Используя соответствующие функции, передать данные из пространства пользователя в пространство ядра (введённые данные вывести в файл ядра) и из пространства ядра в пространство пользователя.
+	Продемонстрировать это.
+\end{task*}
+
+В листинге \ref{lst:fortune} содержится код программы загружаемого модуля.
+На рисунке \ref{img:task2-fortune} продемонстрирована работа программы.
+На рисунке \ref{img:task2-proc} показаны созданные в \code{/proc} файлы после загрузки модуля.
+
+\lstinputlisting[caption={task2/fortune.c}\label{lst:fortune}, language=C]{../task2/fortune.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/task2-fortune}
+	\caption{Демонстрация работы модуля \code{fortune}}
+	\label{img:task2-fortune}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/task2-proc}
+	\caption{Созданные файлы в \code{/proc} после загрузки модуля}
+	\label{img:task2-proc}
+\end{figure}
+
+\end{document}
