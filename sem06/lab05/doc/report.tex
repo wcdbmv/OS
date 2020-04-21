@@ -1,0 +1,74 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\begin{task*}
+	В лабораторной работе анализируется результат выполнения трех программ.
+	Программы демонстрируют открытие одного и того же файла несколько раз.
+	Реализация открытия файла в одной программе несколько раз выбрана для простоты.
+	Такая ситуация возможна в системе, когда один и тот же файл несколько раз открывают разные процессы.
+	Но для получения ситуаций аналогичных тем, которые демонстрируют приведенные программы надо было бы синхронизировать работу процессов.
+	При выполнении асинхронных процессов такая ситуация вероятна и ее надо учитывать, чтобы избежать потери данных или получения неверного результата при выводе в файл.
+\end{task*}
+
+\section*{Программа 1}
+
+\lstinputlisting[caption={testCIO.c}\label{lst:testCIO}, language=C]{../testCIO.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/testCIO-runtime}
+	\caption{Демонстрация работы программы \code{testCIO.c}}
+	\label{img:testCIO-runtime}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.65]{inc/img/testCIO}
+	\caption{testCIO}
+	\label{img:testCIO}
+\end{figure}
+
+\section*{Программа 2}
+
+\lstinputlisting[caption={testKernelIO.c}\label{lst:testKernelIO}, language=C]{../testKernelIO.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/testKernelIO-runtime}
+	\caption{Демонстрация работы программы \code{testKernelIO.c}}
+	\label{img:testKernelIO-runtime}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.65]{inc/img/testKernelIO}
+	\caption{testKernelIO}
+	\label{img:testKernelIO}
+\end{figure}
+
+\section*{Программа 3}
+
+\lstinputlisting[caption={testCO.c}\label{lst:testCO}, language=C]{../testCO.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/testCO-runtime}
+	\caption{Демонстрация работы программы \code{testCO.c}}
+	\label{img:testCO-runtime}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.65]{inc/img/testCO}
+	\caption{testCO}
+	\label{img:testCO}
+\end{figure}
+
+\lstinputlisting[caption={FILE.h}\label{lst:FILE}, language=C]{../FILE.h}
+
+\end{document}
