@@ -6,6 +6,7 @@ EXE_EXT = out
 
 SRCS = $(wildcard *.$(SRC_EXT))
 EXES = $(patsubst %.$(SRC_EXT), %.$(EXE_EXT), $(SRCS))
+CMXS = $(patsubst %.$(SRC_EXT), %, $(SRCS))
 
 .PHONY: all clean
 
@@ -15,4 +16,4 @@ all: $(EXES)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f *.$(EXE_EXT) 2>/dev/null
+	rm -f $(EXES) $(CMXS) alphabet_out.txt 2>/dev/null
