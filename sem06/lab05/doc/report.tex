@@ -1,0 +1,108 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\begin{task*}
+	В лабораторной работе анализируется результат выполнения трех программ.
+	Программы демонстрируют открытие одного и того же файла несколько раз.
+	Реализация открытия файла в одной программе несколько раз выбрана для простоты.
+	Такая ситуация возможна в системе, когда один и тот же файл несколько раз открывают разные процессы.
+	Но для получения ситуаций аналогичных тем, которые демонстрируют приведенные программы надо было бы синхронизировать работу процессов.
+	При выполнении асинхронных процессов такая ситуация вероятна и ее надо учитывать, чтобы избежать потери данных или получения неверного результата при выводе в файл.
+\end{task*}
+
+\section*{Программа 1}
+
+\lstinputlisting[caption={testCIO.c}\label{lst:testCIO}, language=C]{../testCIO.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/testCIO-runtime}
+	\caption{Демонстрация работы программы \code{testCIO.c}}
+	\label{img:testCIO-runtime}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.65]{inc/img/testCIO}
+	\caption{Связь дескрипторов в \code{testCIO.c}}
+	\label{img:testCIO}
+\end{figure}
+
+Системный вызов \code{open()} создаёт новый файловый дескриптор для открытого только на чтение (\code{O\_RDONLY}) файла \code{alphabet.txt}, запись в системной таблице открытых файлов.
+Эта запись регистрирует смещение в файле и флаги состояния файла.
+Новый файловый дескриптор является наименьшим дескриптором, который ещё не открыт процессом (\code{3}).
+Функция \code{fdopen()} связывает потоки \code{fs1} и \code{fs2} с дескриптором \code{fd}.
+Функция \code{setvbuf()} устанавливает блочную буферизации (\code{\_IOFBF}) размером 20 байт для каждого из потоков \code{fs1} и \code{fs2}.
+
+Размер файла \code{alphabet.txt} составляет 27 байтов (26 букв английского алфавита и символ новой строки), в буфер потока \code{fs1} поместятся первые 20 байтов (\code{"Abcdefghijklmopqrst"}), в буфер потока \code{fs2} — оставшиеся 7 байтов (\code{"uvwxyz{\textbackslash}n"}).
+
+В цикле чередуется вывод из потоков \code{fs1} и \code{fs2}.
+Поскольку в буфере второго потока меньше символов, после последнего символа \code{'{\textbackslash}n'} выведутся оставшиеся в буфере первого потока символы.
+Результат — строка \code{"Aubvcwdxeyfzg{\textbackslash}nhijklmnopqrst"}.
+
+\section*{Программа 2}
+
+\lstinputlisting[caption={testKernelIO.c}\label{lst:testKernelIO}, language=C]{../testKernelIO.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/testKernelIO-runtime}
+	\caption{Демонстрация работы программы \code{testKernelIO.c}}
+	\label{img:testKernelIO-runtime}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.65]{inc/img/testKernelIO}
+	\caption{Связь дескрипторов в \code{testKernelIO.c}}
+	\label{img:testKernelIO}
+\end{figure}
+
+Файл \code{alphabet.txt} открывается системным вызовом \code{open()} только на чтение (\code{O\_RDONLY}) дважды, в системной таблице открытых файлов создаются две новых записи, дескрипторы помещаются в переменные \code{fd1} и \code{fd2} (хоть и описывают один файл, являются различными).
+Смещения в файловых дескрипторах независимы, поэтому в цикле на экран выводится каждый символ из файла дважды.
+Результат — строка \code{"AAbbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{\textbackslash}n{\textbackslash}n"}.
+
+\section*{Программа 3}
+
+\lstinputlisting[caption={testCO.c}\label{lst:testCO}, language=C]{../testCO.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/testCO-runtime}
+	\caption{Демонстрация работы программы \code{testCO.c}}
+	\label{img:testCO-runtime}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.65]{inc/img/testCO}
+	\caption{Связь дескрипторов в \code{testCO.c}}
+	\label{img:testCO}
+\end{figure}
+
+Файл \code{alphabet\_out.txt} открывается функцией \code{fopen()} на запись дважды, в два различных потока \code{fs1} и \code{fs2}.
+
+В цикле символы, имеющие нечётный код в таблице \code{ASCII}, записываются в буфер потока \code{fs1}, чётные — в буфер потока \code{fs2}.
+После закрытия потока \code{fs1}, его буфер записывается в файл.
+Смещения в потоках независимы, поэтому после закрытия потока \code{fs2}, его буфер записывается в файл опять с начала.
+Результат — строка \code{"bdfhjlnprtvxz"}.
+
+\section*{Cтруктура FILE}
+
+\lstinputlisting[caption={FILE.h}\label{lst:FILE}, language=C]{../FILE.h}
+
+\section*{Заключение}
+
+Открытые файлы, для которых используется ввод/вывод потоков, могут буферизоваться.
+Открытие одного и того же файла каждый раз создаёт новый файловый дескриптор и новую запись в системной таблице открытых файлов.
+Эта запись регистрирует смещение в файле и флаги состояния файла.
+Поэтому у различных дескрипторов открытого файла смещения не зависят друг от друга.
+
+Чтобы избежать потери данных или получения неверного результата при буферизованном выводе в файл, необходимо учитывать то, что файл может быть открыт несколько раз, а также помнить о своевременном выполнении \code{fclose()} и \code{fflush()}.
+
+\end{document}
