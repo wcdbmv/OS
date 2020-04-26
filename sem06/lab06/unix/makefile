@@ -15,4 +15,4 @@ all: $(EXES)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f $(EXES) alphabet_out.txt 2>/dev/null
+	rm -f $(EXES) 2>/dev/null
