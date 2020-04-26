@@ -20,14 +20,6 @@ int perror_exit(const char *str)
 	exit(EXIT_FAILURE);
 }
 
-static char time_buf[BUF_SIZE];
-const char *curtime(void)
-{
-	const time_t timer = time(NULL);
-	strftime(time_buf, ARRAY_SIZE(time_buf), "%Y-%m-%d %H:%M:%S", localtime(&timer));
-	return time_buf;
-}
-
 void handle_connection(void)
 {
 	const int sd = accept(master_sd, NULL, NULL);
@@ -35,16 +27,17 @@ void handle_connection(void)
 		perror_exit("accept");
 	}
 
+	const time_t timer = time(NULL);
 	for (int i = 0; i < MAX_CLIENTS_COUNT; ++i) {
 		if (!clients[i]) {
 			clients[i] = sd;
-			printf("[%s] new connection: client %d (sd = %d)\n", curtime(), i, sd);
+			printf("[%.19s] new connection: client %d (sd = %d)\n", ctime(&timer), i, sd);
 			return;
 		}
 	}
 
 	close(master_sd);
-	fprintf(stderr, "[%s] reached MAX_CLIENTS_COUNT\n", curtime());
+	fprintf(stderr, "[%.19s] reached MAX_CLIENTS_COUNT\n", ctime(&timer));
 	exit(EXIT_FAILURE);
 }
 
@@ -52,15 +45,16 @@ void handle_client(int i)
 {
 	char msg[BUF_SIZE];
 	const ssize_t bytes = recv(clients[i], &msg, ARRAY_SIZE(msg), 0);
+	const time_t timer = time(NULL);
 	if (!bytes) {
-		printf("[%s] client %d (sd = %d) disconnected\n", curtime(), i, clients[i]);
+		printf("[%.19s] client %d (sd = %d) disconnected\n", ctime(&timer), i, clients[i]);
 		close(clients[i]);
 		clients[i] = 0;
 		return;
 	}
 
 	msg[bytes] = '\0';
-	printf("[%s] receive message from client %d (sd = %d): %s\n", curtime(), i, clients[i], msg);
+	printf("[%.19s] receive message from client %d (sd = %d): %s\n", ctime(&timer), i, clients[i], msg);
 }
 
 int main(void)
@@ -84,7 +78,8 @@ int main(void)
 		perror_exit("listen");
 	}
 
-	printf("[%s] server is running on %s:%d\n", curtime(), inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+	const time_t timer = time(NULL);
+	printf("[%.19s] server is running on %s:%d\n", ctime(&timer), inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
 
 	while (1) {
 		fd_set readfds;

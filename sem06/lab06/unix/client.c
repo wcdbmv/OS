@@ -1,9 +1,9 @@
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <time.h>
 #include "socket.h"
 
 int main(void)
@@ -23,8 +23,11 @@ int main(void)
 	char msg[BUF_SIZE];
 	snprintf(msg, ARRAY_SIZE(msg), "pid %d", getpid());
 	if (sendto(sockfd, msg, strlen(msg), 0, &addr, sizeof addr) == -1) {
-		fprintf(stderr, "sendto %s: %s\n", SOCKET_NAME, strerror(errno));
+		perror("sendto");
 		rc = EXIT_FAILURE;
+	} else {
+		const time_t timer = time(NULL);
+		printf("[%.19s] send message: %s\n", ctime(&timer), msg);
 	}
 
 	close(sockfd);

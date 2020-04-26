@@ -7,14 +7,6 @@
 #include <unistd.h>
 #include "socket.h"
 
-static char time_buf[BUF_SIZE];
-const char *curtime(void)
-{
-	const time_t timer = time(NULL);
-	strftime(time_buf, ARRAY_SIZE(time_buf), "%Y-%m-%d %H:%M:%S", localtime(&timer));
-	return time_buf;
-}
-
 int main(void)
 {
 	const int master_sd = socket(AF_INET, SOCK_STREAM, 0);
@@ -42,7 +34,8 @@ int main(void)
 			return EXIT_FAILURE;
 		}
 
-		printf("[%s] sent message: %s\n", curtime(), msg);
+		const time_t timer = time(NULL);
+		printf("[%.19s] sent message: %s\n", ctime(&timer), msg);
 		printf("Press Enter to resend message...");
 		getchar();
 	} while (1);
