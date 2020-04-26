@@ -1,0 +1,47 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\section*{Часть 1}
+
+\begin{task*}
+	Написать приложение по модели клиент-сервер, демонстрирующее взаимодействие параллельных процессов на отдельном компьютере с использованием сокетов в файловом пространстве имен: семейство — \code{AF\_UNIX}, тип — \code{SOCK\_DGRAM}.
+	При демонстрации работы программного комплекса необходимо запустить несколько клиентов (не меньше 5) и продемонстрировать, что сервер обрабатывает обращения каждого запущенного клиента.
+\end{task*}
+
+\lstinputlisting[caption={\code{unix/socket.h}}\label{lst:unix/socket.h}, language=C]{../unix/socket.h}
+\lstinputlisting[caption={\code{unix/server.c}}\label{lst:unix/server.c}, language=C]{../unix/server.c}
+\lstinputlisting[caption={\code{unix/client.c}}\label{lst:unix/client.c}, language=C]{../unix/client.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/unix-runtime}
+	\caption{Демонстрация работы программы}
+	\label{img:unix-runtime}
+\end{figure}
+
+\section*{Часть 2}
+
+\begin{task*}
+	Написать приложение по модели клиент-сервер, осуществляющее взаимодействие параллельных процессов, которые выполняются на разных компьютерах.
+	Для взаимодействия с клиентами сервер должен использовать мультиплексирование.
+	Сервер должен обслуживать запросы параллельно запущенных клиентов.
+	При демонстрации работы программного комплекса необходимо запустить несколько клиентов (не меньше 5) и продемонстрировать, что сервер обрабатывает обращения каждого запущенного клиента.
+\end{task*}
+
+\lstinputlisting[caption={\code{net/socket.h}}\label{lst:net/socket.h}, language=C]{../net/socket.h}
+\lstinputlisting[caption={\code{net/server.c}}\label{lst:net/server.c}, language=C]{../net/server.c}
+\lstinputlisting[caption={\code{net/client.c}}\label{lst:net/client.c}, language=C]{../net/client.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/net-runtime}
+	\caption{Демонстрация работы программы}
+	\label{img:net-runtime}
+\end{figure}
+
+\end{document}
