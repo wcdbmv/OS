@@ -21,7 +21,7 @@ static struct myfs_inode **line = NULL;
 static int busy = 0;
 static int sco = 0;
 
-struct myfs_inode *cache_get_inode(void)
+static struct myfs_inode *cache_get_inode(void)
 {
 	if (busy == MYFS_CACHE_INODE_COUNT) {
 		return NULL;
@@ -84,9 +84,9 @@ static int myfs_fill_sb(struct super_block *sb, void *data, int silent)
 	return 0;
 }
 
-static struct dentry *myfs_mount(struct file_system_type *type, int flags, const char *dev, void *data)
+static struct dentry *myfs_mount(struct file_system_type *type, int flags, __attribute__((unused)) const char *dev, void *data)
 {
-	struct dentry *entry = mount_bdev(type, flags, dev, data, myfs_fill_sb);
+	struct dentry *entry = mount_nodev(type, flags, data, myfs_fill_sb);
 	if (IS_ERR(entry)) {
 		printk(KERN_ERR "myfs: mounting failed\n");
 	} else {
@@ -99,7 +99,7 @@ static struct file_system_type myfs_type = {
 	.owner   = THIS_MODULE,
 	.name    = "myfs",
 	.mount   = myfs_mount,
-	.kill_sb = kill_block_super,
+	.kill_sb = kill_anon_super
 };
 
 
