@@ -1,0 +1,20 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\section*{Виртуальная файловая система}
+
+\lstinputlisting[caption={\code{myfs.c}}\label{lst:myfs.c}, language=C]{../myfs.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/myfs}
+	\caption{Демонстрация работы программы}
+	\label{img:myfs}
+\end{figure}
+
+\end{document}
