@@ -1,0 +1,22 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\lstinputlisting[caption={\code{main.c}}\label{lst:main.c}, language=C]{../main.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/tree}
+	\caption{Демонстрация работы программы}
+	\label{img:tree}
+\end{figure}
+
+\section*{Приложение А}
+
+\lstinputlisting[caption={\code{color.h}}\label{lst:color.h}, language=C]{../color.h}
+
+\end{document}
