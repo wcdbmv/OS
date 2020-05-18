@@ -1,0 +1,48 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\section*{Тасклет}
+
+\textbf{Задание.}
+\begin{itemize}
+	\item Написать загружаемый модуль ядра, в котором зарегистрировать обработчик аппаратного прерывания с флагом \code{IRQF\_SHARED}.
+	\item Инициализировать тасклет.
+	\item В обработчике прерывания запланировать тасклет на выполнение.
+	\item Вывести информацию о тасклете, используя или \code{printk()}, или \code{seq\_file interface}.
+\end{itemize}
+
+\lstinputlisting[caption={\code{tasklet/my\_tasklet.c}}\label{lst:tasklet}, language=C]{../tasklet/my_tasklet.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/tasklet}
+	\caption{Демонстрация работы программы}
+	\label{img:tasklet}
+\end{figure}
+
+
+\section*{Очередь работ}
+
+\textbf{Задание.}
+\begin{itemize}
+	\item Написать загружаемый модуль ядра, в котором зарегистрировать обработчик аппаратного прерывания с флагом \code{IRQF\_SHARED}.
+	\item Инициализировать очередь работ.
+	\item В обработчике прерывания запланировать тасклет на выполнение.
+	\item Вывести информацию о тасклете, используя или \code{printk()}, или \code{seq\_file interface}.
+\end{itemize}
+
+\lstinputlisting[caption={\code{workqueue/my\_workqueue.c}}\label{lst:workqueue}, language=C]{../workqueue/my_workqueue.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/workqueue}
+	\caption{Демонстрация работы программы}
+	\label{img:workqueue}
+\end{figure}
+
+\end{document}
