@@ -12,7 +12,7 @@ $(APP): main.o
 	$(CC) -o $@ $(CFLAGS) -c $<
 
 %.o: %.c
-	$(CC) -o $@ $(CFALGS) -c $^
+	$(CC) -o $@ $(CFLAGS) -c $^
 
 clean:
 	rm -f *.o *.out 2>/dev/null
