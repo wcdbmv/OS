@@ -108,7 +108,7 @@ static int dopath(const char *filename, int depth, MyFunc *func)
 static int counter(const char *filename, const struct stat *st, int depth, int type)
 {
 	for (int i = 0; i + 1 < depth; ++i) {
-		printf("│   ");
+		printf("│   ");
 	}
 
 	const char *s = "";
