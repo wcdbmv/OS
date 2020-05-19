@@ -92,6 +92,7 @@ static int dopath(const char *filename, int depth, MyFunc *func)
 			continue;
 		}
 
+		/* рекурсивный вызов */
 		if ((ret = dopath(entry->d_name, depth + 1, func)) != EXIT_SUCCESS) {
 			return ret;  // выход по ошибке
 		}
@@ -102,7 +103,7 @@ static int dopath(const char *filename, int depth, MyFunc *func)
 		fprintf(stderr, "closedir(%s): %s", filename, strerror(errno));
 	}
 
-	return ret;
+	return ret;  // выход по завершении обхода
 }
 
 static int counter(const char *filename, const struct stat *st, int depth, int type)

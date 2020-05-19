@@ -6,11 +6,14 @@
 
 \include{title}
 
+В строке 96 — рекурсивный вызов \code{dopath}.
+Выход из рекурсии осуществляется в 97 строке (при ошибке) или в 106 (по завершении обхода).
+
 \lstinputlisting[caption={\code{main.c}}\label{lst:main.c}, language=C]{../main.c}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\linewidth]{inc/img/tree}
+	\includegraphics[width=0.9954\linewidth]{inc/img/tree}
 	\caption{Демонстрация работы программы}
 	\label{img:tree}
 \end{figure}
