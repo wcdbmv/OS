@@ -16,6 +16,9 @@ static int __init md_init(void)
 			task->comm, task->pid, task->parent->comm, task->parent->pid);
 	} while ((task = next_task(task)) != &init_task);
 
+	printk(KERN_INFO "=== md: current: %s - %d, parent: %s - %d\n",
+		current->comm, current->pid, current->parent->comm, current->parent->pid);
+
 	return 0;
 }
 
