@@ -1,0 +1,47 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\section*{Часть 1}
+
+\lstinputlisting[caption={\code{task1/md.c}}\label{lst:md}, language=C]{../task1/md.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/task1-1}
+	\caption{Демонстрация работы программы (начало)}
+	\label{img:task1-1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/task1-2}
+	\caption{Демонстрация работы программы (продолжение)}
+	\label{img:task1-2}
+\end{figure}
+
+\section*{Часть 2}
+
+\lstinputlisting[caption={\code{task2/md1.c}}\label{lst:md1}, language=C]{../task2/md1.c}
+\lstinputlisting[caption={\code{task2/md2.c}}\label{lst:md2}, language=C]{../task2/md2.c}
+\lstinputlisting[caption={\code{task2/md3.c}}\label{lst:md3}, language=C]{../task2/md3.c}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/task2-1}
+	\caption{Демонстрация работы программ}
+	\label{img:task2-1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/task2-2}
+	\caption{Ошибка при невозможности обратиться к данным из другого модуля}
+	\label{img:task2-2}
+\end{figure}
+
+\end{document}
